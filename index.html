@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>한아름반 마음싣고 떠나는 자동차 여행</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:'Arial Rounded MT Bold','Noto Sans KR',sans-serif;background:linear-gradient(#c9efff 0 38%,#ccebb7 38% 100%);color:#24313b;overflow-x:hidden}
+  .wrap{max-width:1200px;margin:0 auto;padding:14px}
+  h1{margin:8px 0 4px;text-align:center;font-size:clamp(25px,4vw,48px);color:#ff5b7f;text-shadow:2px 2px #fff}
+  .sub{text-align:center;font-size:clamp(15px,2vw,22px);font-weight:800;margin-bottom:12px}
+  .panel{background:rgba(255,255,255,.93);border:4px solid #fff;border-radius:24px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.12);margin-bottom:14px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+  .upload{position:relative;display:inline-flex;align-items:center;gap:8px;background:#ffda61;border:3px solid #f4b939;border-radius:18px;padding:13px 18px;font-size:20px;font-weight:900;cursor:pointer}
+  .upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  button{border:0;border-radius:18px;padding:13px 18px;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+  #startBtn{background:#77dd77} #resetBtn{background:#88c8ff} #soundBtn{background:#ffc0cb}
+  .tip{text-align:center;margin:10px 0 0;font-size:17px;font-weight:800;color:#58636a}
+
+  .race-shell{position:relative;background:#69b64a;border:5px solid white;border-radius:28px;overflow:hidden;box-shadow:0 9px 24px rgba(0,0,0,.18)}
+  .skydecor{height:55px;background:linear-gradient(#bcecff,#edfaff);position:relative;overflow:hidden}
+  .cloud{position:absolute;background:white;border-radius:30px;width:80px;height:28px;opacity:.9}
+  .cloud:before,.cloud:after{content:"";position:absolute;background:white;border-radius:50%}.cloud:before{width:34px;height:34px;left:15px;top:-15px}.cloud:after{width:42px;height:42px;right:10px;top:-20px}
+  .c1{left:8%;top:22px}.c2{left:47%;top:17px;transform:scale(.8)}.c3{right:6%;top:20px;transform:scale(1.15)}
+  #tracks{padding:10px 0 18px}
+  .lane{position:relative;height:120px;margin:10px 0;background:repeating-linear-gradient(0deg,#555 0,#555 55px,#5e5e5e 55px,#5e5e5e 110px);border-top:4px solid #f2f2f2;border-bottom:4px solid #f2f2f2;overflow:hidden}
+  .lane:after{content:"";position:absolute;left:0;right:0;top:56px;border-top:4px dashed #fff;opacity:.8}
+  .lane-label{position:absolute;left:8px;top:8px;background:#fff;border-radius:15px;padding:6px 10px;font-size:15px;font-weight:900;z-index:6;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .finish{position:absolute;right:38px;top:0;width:32px;height:100%;z-index:3;background:repeating-conic-gradient(#fff 0 25%,#111 0 50%) 50%/22px 22px}
+  .startline{position:absolute;left:92px;top:0;width:7px;height:100%;background:#ffe55d;z-index:2;box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+  .car{position:absolute;left:100px;top:25px;width:150px;height:78px;z-index:5;user-select:none;touch-action:manipulation}
+  .car img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 3px rgba(0,0,0,.35));pointer-events:none}
+  .wheelBtn{position:absolute;bottom:-4px;width:47px;height:47px;border-radius:50%;background:radial-gradient(circle,#bbb 0 16%,#333 17% 45%,#111 46% 67%,#444 68%);border:4px solid #e9e9e9;box-shadow:0 2px 5px #0007;z-index:8;pointer-events:none;animation:none}
+  .wheel-left{left:20px}.wheel-right{right:20px}
+  .spin{animation:spin .35s linear}@keyframes spin{to{transform:rotate(360deg)}}
+  .fallback{width:100%;height:100%;border-radius:35px 45px 20px 20px;background:#ff7070;border:5px solid #fff;position:relative;display:flex;align-items:center;justify-content:center;font-size:32px}
+  .fallback:before{content:"";position:absolute;width:75px;height:32px;background:#caefff;border-radius:25px 25px 5px 5px;top:-17px}
+  .rankbadge{position:absolute;right:78px;top:10px;background:#fff2a5;border:3px solid #ffbf2f;padding:7px 12px;border-radius:16px;font-size:17px;font-weight:900;z-index:7;display:none}
+  .rankbox{display:none;margin-top:14px;background:#fff;border-radius:24px;padding:15px;border:4px solid #ffdf73}
+  .rankbox h2{text-align:center;margin:0 0 10px;color:#f0647d}.ranklist{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .rankitem{font-size:20px;font-weight:900;background:#f5f8ff;border-radius:15px;padding:10px 14px}
+  .empty{text-align:center;background:#ffffffdb;margin:15px;border-radius:25px;padding:36px 15px;font-size:22px;font-weight:900;color:#58636a}
+  .winnerFlash{animation:flash .45s alternate 6}@keyframes flash{from{box-shadow:inset 0 0 0 0 #ffef67}to{box-shadow:inset 0 0 0 10px #ffef67}}
+  @media(max-width:650px){.lane{height:105px}.car{width:125px;height:68px;top:20px}.wheelBtn{width:42px;height:42px}.wheel-left{left:16px}.wheel-right{right:16px}.startline{left:62px}.car{left:70px}.lane-label{font-size:13px}.finish{right:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🚗 한아름반 마음싣고 떠나는 자동차 여행 🚙</h1>
+  <div class="sub">자동차 사진을 올리고, 자동차를 손가락으로 톡톡 누르면 앞으로 달려요!</div>
+
+  <div class="panel">
+    <div class="controls">
+      <label class="upload">📷 자동차 사진 여러 장 올리기<input id="files" type="file" accept="image/*" multiple></label>
+            <button id="resetBtn">🔄 다시 출발</button>
+      <button id="soundBtn">🔊 소리 켜짐</button>
+    </div>
+    <div class="tip">💡 자동차마다 바퀴 2개가 자동으로 붙어요. 자동차 그림을 누를 때마다 그 자동차만 앞으로 움직여요!</div>
+  </div>
+
+  <div class="race-shell" id="raceShell">
+    <div class="skydecor"><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div></div>
+    <div id="tracks"><div class="empty">자동차 사진을 2장 이상 올리면 친구들과 경주할 수 있어요!<br>사진 1장만 올려도 혼자 달리기 놀이가 가능해요 😊</div></div>
+  </div>
+
+  <div class="rankbox" id="rankbox"><h2>🏆 자동차 여행 도착 순서 🏆</h2><div class="ranklist" id="ranklist"></div></div>
+</div>
+
+<script>
+const files=document.getElementById('files');
+const tracks=document.getElementById('tracks');
+const resetBtn=document.getElementById('resetBtn');
+const soundBtn=document.getElementById('soundBtn');
+const rankbox=document.getElementById('rankbox');
+const ranklist=document.getElementById('ranklist');
+let cars=[], finished=[], soundOn=true, racing=false, rafId=null, lastTime=0;
+let audioCtx;
+
+function beep(freq=500,dur=.09,type='sine'){
+ if(!soundOn)return;
+ try{
+  audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.08,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);
+ }catch(e){}
+}
+function speak(text){if(!soundOn||!('speechSynthesis' in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.95;speechSynthesis.speak(u)}
+
+files.addEventListener('change',e=>{
+ stopRace();
+ const list=[...e.target.files].slice(0,8);
+ if(!list.length)return;
+ tracks.innerHTML='';cars=[];finished=[];rankbox.style.display='none';ranklist.innerHTML='';
+ list.forEach((file,i)=>{
+   const reader=new FileReader();
+   reader.onload=ev=>createLane(ev.target.result,file.name.replace(/\.[^.]+$/,''),i);
+   reader.readAsDataURL(file);
+ });
+});
+
+function createLane(src,name,i){
+ const lane=document.createElement('div');lane.className='lane';
+ lane.innerHTML=`<div class="lane-label">${i+1}번 ${escapeHtml(name)}</div><div class="startline"></div><div class="finish"></div><div class="rankbadge"></div>`;
+ const car=document.createElement('div');car.className='car';
+ const img=document.createElement('img');img.src=src;img.alt=name;car.appendChild(img);
+ const wl=document.createElement('div');wl.className='wheelBtn wheel-left';
+ const wr=document.createElement('div');wr.className='wheelBtn wheel-right';
+ car.append(wl,wr);lane.appendChild(car);tracks.appendChild(lane);
+ const obj={lane,car,wl,wr,name:`${i+1}번 자동차`,pos:0,done:false,speed:0};cars.push(obj);
+  car.style.cursor='pointer';
+  car.setAttribute('role','button');
+  car.setAttribute('tabindex','0');
+  car.addEventListener('click',()=>moveCar(obj));
+  car.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();moveCar(obj)}});
+ requestAnimationFrame(()=>setCarLeft(obj,0));
+}
+
+function escapeHtml(s){return s.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+function metrics(obj){
+ const laneW=obj.lane.clientWidth, carW=obj.car.offsetWidth;
+ const start=window.innerWidth<=650?70:100;
+ const finishX=laneW-(window.innerWidth<=650?25:38)-carW-5;
+ return {start,max:Math.max(40,finishX-start)};
+}
+function setCarLeft(obj,pct){const {start,max}=metrics(obj);obj.car.style.left=(start+max*(pct/100))+'px'}
+
+function moveCar(obj){
+  if(obj.done)return;
+  obj.pos=Math.min(100,obj.pos+8);
+  setCarLeft(obj,obj.pos);
+  obj.wl.classList.remove('spin'); obj.wr.classList.remove('spin');
+  void obj.wl.offsetWidth; void obj.wr.offsetWidth;
+  obj.wl.classList.add('spin'); obj.wr.classList.add('spin');
+  setTimeout(()=>{obj.wl.classList.remove('spin');obj.wr.classList.remove('spin')},350);
+  if(obj.pos>=100)finishCar(obj);
+}
+
+function finishCar(obj){
+ if(obj.done)return;
+ obj.done=true; obj.wl.classList.remove('spin'); obj.wr.classList.remove('spin');
+ finished.push(obj); const rank=finished.length;
+ const badge=obj.lane.querySelector('.rankbadge');badge.textContent=`${rank}등! 🎉`;badge.style.display='block';obj.lane.classList.add('winnerFlash');
+ ranklist.insertAdjacentHTML('beforeend',`<div class="rankitem">${rank}등 🚗 ${obj.name}</div>`);rankbox.style.display='block';
+ if(rank===1){speak('와! 1등 자동차가 도착했어요!');beep(800,.18);setTimeout(()=>beep(1000,.2),200)}
+ if(finished.length===cars.length)setTimeout(()=>speak('모든 자동차가 마음 여행을 완주했어요!'),500);
+}
+function stopRace(resetWheels=true){
+ racing=false; if(rafId)cancelAnimationFrame(rafId); rafId=null;
+ if(resetWheels)cars.forEach(o=>{o.wl.classList.remove('spin');o.wr.classList.remove('spin')});
+}
+
+resetBtn.addEventListener('click',()=>{
+ stopRace(); finished=[];ranklist.innerHTML='';rankbox.style.display='none';
+ cars.forEach(o=>{o.pos=0;o.done=false;setCarLeft(o,0);o.lane.classList.remove('winnerFlash');o.lane.querySelector('.rankbadge').style.display='none'});
+ speak('다시 출발선에 섰어요');
+});
+soundBtn.addEventListener('click',()=>{soundOn=!soundOn;soundBtn.textContent=soundOn?'🔊 소리 켜짐':'🔇 소리 꺼짐';if(soundOn)speak('소리를 켰어요')});
+window.addEventListener('resize',()=>cars.forEach(o=>setCarLeft(o,o.pos)));
+</script>
+</body>
+</html>
